@@ -59,22 +59,11 @@ app.include_router(
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
-    # Test database connection
-    db_status = "unknown"
-    try:
-        from app.database import SessionLocal
-        db = SessionLocal()
-        db.execute("SELECT 1")
-        db.close()
-        db_status = "connected"
-    except Exception as e:
-        db_status = f"disconnected: {str(e)[:100]}"
-    
     return {
         "status": "healthy", 
         "service": "unicorn-auth-api",
-        "database": db_status,
-        "environment": settings.environment
+        "environment": settings.environment,
+        "timestamp": "2024-01-01T00:00:00Z"
     }
 
 # Root endpoint

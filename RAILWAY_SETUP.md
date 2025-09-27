@@ -71,10 +71,11 @@ curl https://backend-production-b447.up.railway.app/health
 
 ### Возможные проблемы:
 
-1. **Application failed to respond** - проверьте переменные окружения и DATABASE_URL
-2. **Database connection failed** - убедитесь, что PostgreSQL сервис запущен и подключен
-3. **Health check timeout** - обычно означает, что приложение не запускается из-за ошибок в коде
-4. **CORS errors** - проверьте CORS_ORIGINS
+1. **"Invalid value for '--port': '$PORT' is not a valid integer"** - ✅ ИСПРАВЛЕНО: Создан скрипт start.py для правильной обработки PORT
+2. **Application failed to respond** - проверьте переменные окружения и DATABASE_URL
+3. **Database connection failed** - убедитесь, что PostgreSQL сервис запущен и подключен
+4. **Health check timeout** - обычно означает, что приложение не запускается из-за ошибок в коде
+5. **CORS errors** - проверьте CORS_ORIGINS
 
 ### После исправления:
 1. Настройте переменные окружения
