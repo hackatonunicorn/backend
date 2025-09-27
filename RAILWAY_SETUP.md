@@ -14,7 +14,7 @@
 ```
 ENVIRONMENT=production
 SECRET_KEY=your-super-secret-key-change-this-in-production
-CORS_ORIGINS=https://your-frontend-domain.com
+CORS_ORIGINS=https://your-frontend-domain.com,https://localhost:3000,http://localhost:3000
 FRONTEND_URL=https://your-frontend-domain.com
 ```
 

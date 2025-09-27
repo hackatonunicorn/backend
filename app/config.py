@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     # Environment
     environment: str = "development"
     frontend_url: str = "http://localhost:3000"
-    cors_origins: str = "http://localhost:3000,http://localhost:3001"
+    cors_origins: str = "http://localhost:3000,http://localhost:3001,https://localhost:3000,https://localhost:3001"
     port: int = 8000
     
     # Security
