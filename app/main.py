@@ -20,8 +20,8 @@ app = FastAPI(
     title="Unicorn Authentication API",
     description="Authentication backend for Unicorn fundraising platform",
     version="1.0.0",
-    docs_url="/docs" if settings.environment != "production" else None,
-    redoc_url="/redoc" if settings.environment != "production" else None,
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
 
 # Add rate limiting
