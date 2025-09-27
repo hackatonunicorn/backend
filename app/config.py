@@ -9,6 +9,15 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://user:password@localhost:5432/unicorn_db"
     database_url_test: str = "postgresql://user:password@localhost:5432/unicorn_db_test"
     
+    @property
+    def safe_database_url(self) -> str:
+        """Get database URL with fallback for Railway"""
+        if self.database_url.startswith("postgresql://") and "localhost" not in self.database_url:
+            return self.database_url
+        # Fallback to environment variable for Railway
+        import os
+        return os.getenv("DATABASE_URL", self.database_url)
+    
     # JWT
     secret_key: str = "your-secret-key-here"
     algorithm: str = "HS256"
@@ -42,11 +51,12 @@ class Settings(BaseSettings):
     rate_limit_requests: int = 5
     rate_limit_window: int = 60
     
-    @validator("cors_origins", pre=True)
-    def parse_cors_origins(cls, v):
-        if isinstance(v, str):
-            return [origin.strip() for origin in v.split(",")]
-        return v or ["*"]
+    @property
+    def cors_origins_list(self) -> List[str]:
+        """Parse CORS origins from string to list"""
+        if isinstance(self.cors_origins, str):
+            return [origin.strip() for origin in self.cors_origins.split(",")]
+        return self.cors_origins or ["*"]
     
     @property
     def is_production(self) -> bool:

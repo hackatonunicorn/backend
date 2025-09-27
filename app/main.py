@@ -9,8 +9,12 @@ from app.database import engine
 from app.models import Base
 from app.exceptions import validation_exception_handler, http_exception_handler
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
+# Create database tables (only if database is available)
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"Warning: Could not create database tables: {e}")
+    print("This might be normal if DATABASE_URL is not set or database is not available")
 
 # Initialize rate limiter
 limiter = Limiter(key_func=get_remote_address)
@@ -38,7 +42,7 @@ app.add_exception_handler(HTTPException, http_exception_handler)
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
@@ -55,7 +59,23 @@ app.include_router(
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
-    return {"status": "healthy", "service": "unicorn-auth-api"}
+    # Test database connection
+    db_status = "unknown"
+    try:
+        from app.database import SessionLocal
+        db = SessionLocal()
+        db.execute("SELECT 1")
+        db.close()
+        db_status = "connected"
+    except Exception as e:
+        db_status = f"disconnected: {str(e)[:100]}"
+    
+    return {
+        "status": "healthy", 
+        "service": "unicorn-auth-api",
+        "database": db_status,
+        "environment": settings.environment
+    }
 
 # Root endpoint
 @app.get("/")
