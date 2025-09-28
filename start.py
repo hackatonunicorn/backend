@@ -5,6 +5,34 @@
 import os
 import sys
 import subprocess
+from pathlib import Path
+
+def run_migrations():
+    """Запускает миграции перед стартом сервера"""
+    print("🔄 Проверка и запуск миграций...")
+    
+    try:
+        # Импортируем и запускаем миграции
+        migration_script = Path(__file__).parent / "scripts" / "run_migrations.py"
+        
+        result = subprocess.run(
+            [sys.executable, str(migration_script)],
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        
+        print("✅ Миграции выполнены успешно!")
+        return True
+        
+    except subprocess.CalledProcessError as e:
+        print(f"⚠️ Предупреждение: Ошибка миграций: {e}")
+        print(f"Stderr: {e.stderr}")
+        # Не останавливаем запуск, возможно таблицы уже существуют
+        return False
+    except Exception as e:
+        print(f"⚠️ Предупреждение: Неожиданная ошибка миграций: {e}")
+        return False
 
 def main():
     """Запуск приложения с правильным портом"""
@@ -12,6 +40,9 @@ def main():
     port = os.getenv("PORT", "8000")
     
     print(f"🚀 Запуск приложения на порту {port}")
+    
+    # Запускаем миграции перед стартом сервера
+    run_migrations()
     
     # Команда запуска
     cmd = [

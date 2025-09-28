@@ -58,12 +58,43 @@ app.include_router(
 # Health check endpoint
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
+    """Health check endpoint with database verification"""
+    import datetime
+    from sqlalchemy import text
+    
+    # Проверяем подключение к базе данных
+    db_status = "disconnected"
+    tables_exist = False
+    
+    try:
+        with engine.connect() as connection:
+            # Проверяем подключение
+            result = connection.execute(text("SELECT 1"))
+            db_status = "connected"
+            
+            # Проверяем наличие основных таблиц
+            tables_result = connection.execute(text("""
+                SELECT table_name 
+                FROM information_schema.tables 
+                WHERE table_schema = 'public' 
+                AND table_name IN ('users', 'oauth_accounts')
+            """))
+            tables = [row[0] for row in tables_result.fetchall()]
+            tables_exist = len(tables) >= 2  # Ожидаем как минимум 2 таблицы
+            
+    except Exception as e:
+        db_status = f"error: {str(e)}"
+    
+    # Определяем общий статус
+    overall_status = "healthy" if db_status == "connected" and tables_exist else "unhealthy"
+    
     return {
-        "status": "healthy", 
+        "status": overall_status,
         "service": "unicorn-auth-api",
         "environment": settings.environment,
-        "timestamp": "2024-01-01T00:00:00Z"
+        "database": db_status,
+        "tables_created": tables_exist,
+        "timestamp": datetime.datetime.utcnow().isoformat() + "Z"
     }
 
 # Root endpoint
